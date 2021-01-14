@@ -1,0 +1,24 @@
+{
+  "name": "questionnaire",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Remax Project",
+  "main": "index.js",
+  "keywords": [],
+  "author": "zephyr <a550196504@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "remax build -t wechat -w",
+    "build": "cross-env NODE_ENV=production remax build -t wechat"
+  },
+  "dependencies": {
+    "annar": "^2.0.8",
+    "react": "^16.14.0",
+    "react-query": "^3.5.12",
+    "remax": "^2.9.1",
+    "zustand": "^3.3.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2"
+  }
+}
