@@ -1,30 +1,23 @@
-import * as React from 'react';
-import { View, Text, Image } from 'remax/wechat';
-import styles from './index.css';
-import Question from './question';
+import React, { useState } from 'react'
+import { useQuery } from 'react-query';
+import Form from '../../component/Form'
+import Question from '../../component/Question';
+import { fetchUserInfo } from '../../api'
 
-
-import { QueryClient, QueryClientProvider } from "react-query";
-
-const queryClient = new QueryClient();
 
 export default () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { queryKey, queryFn } = fetchUserInfo()
+  useQuery(queryKey, queryFn, {
+    onSuccess: (res) => {
+      console.log(res.data)
+      if (res.data.length > 0) {
+        setIsLoggedIn(true)
+      }
+    }
+  })
+
   return (
-    // <View className={styles.app}>
-    //   <View className={styles.header}>
-    //     <Image
-    //       src="https://gw.alipayobjects.com/mdn/rms_b5fcc5/afts/img/A*OGyZSI087zkAAAAAAAAAAABkARQnAQ"
-    //       className={styles.logo}
-    //       alt="logo"
-    //     />
-    //     <View className={styles.text}>
-    //       编辑 <Text className={styles.path}>src/pages/index/index.js</Text>{' '}
-    //       开始
-    //     </View>
-    //   </View>
-    // </View>
-    <QueryClientProvider client={queryClient}>
-      <Question />
-    </QueryClientProvider>
+    isLoggedIn ? <Question /> : <Form />
   );
 };

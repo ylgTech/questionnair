@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { cloud } from "remax/wechat";
 import { useQuery } from "react-query";
 import { Button, Skeleton } from "annar";
-import QuestionOption from "../../component/QuestionOption";
-
-const db = cloud.database({ env: "release-b83caf" });
+import QuestionOption from "./QuestionOption";
+import { fetchQuestions } from "../api";
 
 const Question = () => {
   const totalQuestions = 20;
   const [questionNum, setQuestionNum] = useState(1);
 
+  const { queryKey, queryFn } = fetchQuestions();
   const { status, data, isLoading, isSuccess, isError, error } = useQuery(
-    "test",
-    () =>
-      db.collection("article").doc("a9bfcffc5ebcf83900957b9e3a74dc80").get(),
+    queryKey,
+    queryFn,
     {
       onSuccess: (res) => {
         console.log("success");
@@ -51,6 +49,7 @@ const Question = () => {
             .map(() => `${40 + Math.floor(Math.random() * 60)}%`),
         }}
         fade
+        repetitions={3}
         loading={isLoading}
       >
         <div
@@ -80,6 +79,7 @@ const Question = () => {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
             <Button
               type="primary"
+              look="secondary"
               shape="square"
               disabled={questionNum === 0}
               onTap={() => setQuestionNum(questionNum - 1)}

@@ -1,9 +1,17 @@
-import { cloud } from "remax/wechat";
+import React from 'react'
 import './app.css';
 import 'annar/dist/annar.css'
 
-cloud.init({ env: 'release-b83caf' })
+// setup for react-query
+import { QueryClient, QueryClientProvider } from "react-query";
+const queryClient = new QueryClient();
 
-const App = props => props.children;
+const App = ({ children }) => {
+    return (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    )
+}
 
 export default App;
