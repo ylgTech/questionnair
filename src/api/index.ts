@@ -1,4 +1,4 @@
-import { cloud } from "remax/wechat";
+import { cloud, request } from "remax/wechat";
 import { UserInfo } from "../interfaces"
 
 // init cloud database
@@ -11,8 +11,8 @@ export const fetchUserInfo = () => ({
 })
 
 export const fetchQuestions = () => ({
-    queryKey: 'test',
-    queryFn: () => db.collection("article").doc("a9bfcffc5ebcf83900957b9e3a74dc80").get()
+    queryKey: 'questions',
+    queryFn: () => request({ url: 'https://opentdb.com/api.php?amount=10&category=9&difficulty=easy&type=multiple' })
 })
 
 export const postUserInfo = (data: UserInfo) => db.collection("user").add({ data: data })

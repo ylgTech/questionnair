@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { View } from "remax/wechat";
 import { useQuery } from "react-query";
 import { Button, Skeleton } from "annar";
 import QuestionOption from "./QuestionOption";
 import { fetchQuestions } from "../api";
 
 const Question = () => {
-  const totalQuestions = 20;
-  const [questionNum, setQuestionNum] = useState(1);
+  const [curQuestionIndex, setCurQuestionIndex] = useState(0);
+
+  const answers = useRef([]);
 
   const { queryKey, queryFn } = fetchQuestions();
-  const { status, data, isLoading, isSuccess, isError, error } = useQuery(
+  const { data, isLoading, isSuccess, isError, error } = useQuery(
     queryKey,
     queryFn,
     {
@@ -27,20 +29,18 @@ const Question = () => {
 
   const submit = () => {};
 
-  const numQuestionOptions = Math.floor(Math.random() * 3) + 3;
+  const questions = isSuccess ? data.data.results : [];
+  const totalQuestions = questions.length;
+
+  const questionOptions = isSuccess
+    ? questions[curQuestionIndex].incorrect_answers
+    : [];
+  const numQuestionOptions = questionOptions.length;
   const selectedOptionIndex = Math.floor(Math.random() * numQuestionOptions);
-  const questionOptions = Array(numQuestionOptions)
-    .fill(0)
-    .map((v, i) => ({
-      id: "question" + i,
-      label: String.fromCharCode(65 + i),
-      selected: i === selectedOptionIndex,
-      content: "选项 " + (i + 1),
-    }));
 
   return (
     <>
-      <Progress percent={(questionNum * 100) / totalQuestions} />
+      <Progress percent={(curQuestionIndex * 100) / totalQuestions} />
       <Skeleton
         paragraph={{
           rows: numQuestionOptions,
@@ -52,7 +52,7 @@ const Question = () => {
         repetitions={3}
         loading={isLoading}
       >
-        <div
+        <View
           style={{
             height: "calc(100vh - 4px - 1em)",
             display: "grid",
@@ -62,9 +62,11 @@ const Question = () => {
           }}
         >
           {isSuccess ? (
-            <div style={{ padding: "0 20px" }}>{data.data.title}</div>
+            <View style={{ padding: "0 20px" }}>
+              {questions[curQuestionIndex].question}
+            </View>
           ) : null}
-          <div
+          <View
             style={{
               display: "grid",
               gap: "1em",
@@ -72,17 +74,32 @@ const Question = () => {
               padding: "0 20px",
             }}
           >
-            {questionOptions.map(({ id, ...props }) => (
-              <QuestionOption key={id} {...props} />
+            {questionOptions.map((item, index) => (
+              <QuestionOption
+                key={item}
+                label={String.fromCharCode(65 + index)}
+                content={item}
+                onTap={() => {
+                  answers.current[curQuestionIndex] = index;
+                  setTimeout(() => {
+                    if (curQuestionIndex < totalQuestions - 1)
+                      setCurQuestionIndex((pre) => pre + 1);
+                  }, 300);
+                }}
+                selected={
+                  answers.current[curQuestionIndex] &&
+                  answers.current[curQuestionIndex] === index
+                }
+              />
             ))}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+          </View>
+          <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
             <Button
               type="primary"
               look="secondary"
               shape="square"
-              disabled={questionNum === 0}
-              onTap={() => setQuestionNum(questionNum - 1)}
+              disabled={curQuestionIndex === 0}
+              onTap={() => setCurQuestionIndex(curQuestionIndex - 1)}
               style={{
                 borderTopRightRadius: "0",
                 borderBottomRightRadius: "0",
@@ -90,7 +107,7 @@ const Question = () => {
             >
               上一题
             </Button>
-            {questionNum === totalQuestions ? (
+            {curQuestionIndex === totalQuestions - 1 ? (
               <Button
                 type="primary"
                 shape="square"
@@ -112,21 +129,21 @@ const Question = () => {
                   borderTopLeftRadius: "0",
                   borderBottomLeftRadius: "0",
                 }}
-                onTap={() => setQuestionNum(questionNum + 1)}
+                onTap={() => setCurQuestionIndex(curQuestionIndex + 1)}
               >
                 下一题
               </Button>
             )}
-          </div>
-        </div>
+          </View>
+        </View>
       </Skeleton>
     </>
   );
 };
 
-const Progress = ({ percent }: { percent: number }) => {
+const Progress = React.memo(({ percent }: { percent: number }) => {
   return (
-    <div
+    <View
       style={{
         height: "4px",
         width: `${percent}%`,
@@ -136,8 +153,8 @@ const Progress = ({ percent }: { percent: number }) => {
         backgroundColor: "#1890ff",
         transition: "all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s",
       }}
-    ></div>
+    ></View>
   );
-};
+});
 
 export default Question;
