@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { Button, Skeleton } from "annar";
 import QuestionOption from "./QuestionOption";
 import { fetchQuestions } from "../api";
+import { QuestionType } from "../interfaces";
 
 const Question = () => {
   const [curQuestionIndex, setCurQuestionIndex] = useState(0);
@@ -29,14 +30,11 @@ const Question = () => {
 
   const submit = () => {};
 
-  const questions = isSuccess ? data.data.results : [];
+  const questions: QuestionType[] = isSuccess ? data.list : [];
   const totalQuestions = questions.length;
 
-  const questionOptions = isSuccess
-    ? questions[curQuestionIndex].incorrect_answers
-    : [];
+  const questionOptions = isSuccess ? questions[curQuestionIndex].options : [];
   const numQuestionOptions = questionOptions.length;
-  const selectedOptionIndex = Math.floor(Math.random() * numQuestionOptions);
 
   return (
     <>
