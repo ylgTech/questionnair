@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { View } from "remax/wechat";
-import { useQuery } from "react-query";
+import { useQueries } from "react-query";
 import { Button, Skeleton } from "annar";
 import QuestionOption from "./QuestionOption";
 import { fetchQuestions } from "../api";
@@ -11,26 +11,36 @@ const Question = () => {
 
   const answers = useRef([]);
 
-  const { queryKey, queryFn } = fetchQuestions();
-  const { data, isLoading, isSuccess, isError, error } = useQuery(
-    queryKey,
-    queryFn,
-    {
-      onSuccess: (res) => {
-        console.log("success");
-        console.log(res);
-      },
-      onError: (err: any) => {
-        console.log("error");
-        console.log(err.errMsg);
-      },
-      retry: 0,
-    }
-  );
+  // const { queryKey, queryFn } = fetchQuestions();
+  // const { data, isLoading, isSuccess, isError, error } = useQuery(
+  //   queryKey,
+  //   queryFn,
+  //   {
+  //     onSuccess: (res) => {
+  //       console.log("success");
+  //       console.log(res);
+  //     },
+  //     onError: (err: any) => {
+  //       console.log("error");
+  //       console.log(err.errMsg);
+  //     },
+  //     retry: 0,
+  //   }
+  // );
+
+  const res = useQueries(fetchQuestions());
+  console.log(res);
+
+  const isSuccess = res.every((item) => item.isSuccess);
+  const isLoading = res.some((item) => item.isLoading);
+
+  const data = res.map((item) => item.data?.list);
+  console.log(data);
 
   const submit = () => {};
 
-  const questions: QuestionType[] = isSuccess ? data.list : [];
+  // const questions: QuestionType[] = isSuccess ? data.list : [];
+  const questions = data.flat();
   const totalQuestions = questions.length;
 
   const questionOptions = isSuccess ? questions[curQuestionIndex].options : [];
@@ -50,90 +60,92 @@ const Question = () => {
         repetitions={3}
         loading={isLoading}
       >
-        <View
-          style={{
-            height: "calc(100vh - 4px - 1em)",
-            display: "grid",
-            gap: "40px",
-            gridTemplateRows: "auto 1fr auto",
-            color: "white",
-          }}
-        >
-          {isSuccess ? (
-            <View style={{ padding: "0 20px" }}>
-              {questions[curQuestionIndex].question}
-            </View>
-          ) : null}
+        {isLoading ? null : (
           <View
             style={{
+              height: "calc(100vh - 4px - 1em)",
               display: "grid",
-              gap: "1em",
-              alignContent: "start",
-              padding: "0 20px",
+              gap: "40px",
+              gridTemplateRows: "auto 1fr auto",
+              color: "white",
             }}
           >
-            {questionOptions.map((item, index) => (
-              <QuestionOption
-                key={item}
-                label={String.fromCharCode(65 + index)}
-                content={item}
-                onTap={() => {
-                  answers.current[curQuestionIndex] = index;
-                  setTimeout(() => {
-                    if (curQuestionIndex < totalQuestions - 1)
-                      setCurQuestionIndex((pre) => pre + 1);
-                  }, 300);
-                }}
-                selected={
-                  answers.current[curQuestionIndex] &&
-                  answers.current[curQuestionIndex] === index
-                }
-              />
-            ))}
-          </View>
-          <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-            <Button
-              type="primary"
-              look="secondary"
-              shape="square"
-              disabled={curQuestionIndex === 0}
-              onTap={() => setCurQuestionIndex(curQuestionIndex - 1)}
+            {isSuccess ? (
+              <View style={{ padding: "0 20px" }}>
+                {questions[curQuestionIndex].question}
+              </View>
+            ) : null}
+            <View
               style={{
-                borderTopRightRadius: "0",
-                borderBottomRightRadius: "0",
+                display: "grid",
+                gap: "1em",
+                alignContent: "start",
+                padding: "0 20px",
               }}
             >
-              上一题
-            </Button>
-            {curQuestionIndex === totalQuestions - 1 ? (
+              {questionOptions.map((item, index) => (
+                <QuestionOption
+                  key={questions[curQuestionIndex].question + index}
+                  label={String.fromCharCode(65 + index)}
+                  content={item}
+                  onTap={() => {
+                    answers.current[curQuestionIndex] = index;
+                    setTimeout(() => {
+                      if (curQuestionIndex < totalQuestions - 1)
+                        setCurQuestionIndex((pre) => pre + 1);
+                    }, 300);
+                  }}
+                  selected={
+                    answers.current[curQuestionIndex] &&
+                    answers.current[curQuestionIndex] === index
+                  }
+                />
+              ))}
+            </View>
+            <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
               <Button
                 type="primary"
+                look="secondary"
                 shape="square"
-                onTap={submit}
-                loading={isLoading}
-                loadingText="提交中~"
+                disabled={curQuestionIndex === 0}
+                onTap={() => setCurQuestionIndex(curQuestionIndex - 1)}
                 style={{
-                  borderTopLeftRadius: "0",
-                  borderBottomLeftRadius: "0",
+                  borderTopRightRadius: "0",
+                  borderBottomRightRadius: "0",
                 }}
               >
-                提交
+                上一题
               </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="square"
-                style={{
-                  borderTopLeftRadius: "0",
-                  borderBottomLeftRadius: "0",
-                }}
-                onTap={() => setCurQuestionIndex(curQuestionIndex + 1)}
-              >
-                下一题
-              </Button>
-            )}
+              {curQuestionIndex === totalQuestions - 1 ? (
+                <Button
+                  type="primary"
+                  shape="square"
+                  onTap={submit}
+                  loading={isLoading}
+                  loadingText="提交中~"
+                  style={{
+                    borderTopLeftRadius: "0",
+                    borderBottomLeftRadius: "0",
+                  }}
+                >
+                  提交
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  shape="square"
+                  style={{
+                    borderTopLeftRadius: "0",
+                    borderBottomLeftRadius: "0",
+                  }}
+                  onTap={() => setCurQuestionIndex(curQuestionIndex + 1)}
+                >
+                  下一题
+                </Button>
+              )}
+            </View>
           </View>
-        </View>
+        )}
       </Skeleton>
     </>
   );

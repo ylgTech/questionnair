@@ -11,10 +11,19 @@ export const fetchUserInfo = () => ({
     queryFn: () => db.collection('user').get()
 })
 
-export const fetchQuestions = () => ({
-    queryKey: 'questions',
+export const fetchQuestions = () => ([{
+    queryKey: 'qPersionality',
     queryFn: () => db.collection('qPersonality').aggregate().sample({ size: 5 }).end(),
-})
+}, {
+    queryKey: 'qRelationship',
+    queryFn: () => db.collection('qRelationship').aggregate().sample({ size: 5 }).end(),
+}, {
+    queryKey: 'qSociety',
+    queryFn: () => db.collection('qSociety').aggregate().sample({ size: 5 }).end(),
+}, {
+    queryKey: 'qHarmony',
+    queryFn: () => db.collection('qHarmony').aggregate().sample({ size: 5 }).end(),
+}])
 
 export const postUserInfo = (data: UserInfo) => db.collection("user").add({ data: data })
 
