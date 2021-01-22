@@ -1,5 +1,5 @@
-import { cloud, request } from "remax/wechat";
-import { UserInfo } from "../interfaces"
+import { cloud } from "remax/wechat";
+import { DimensionType, UserInfo } from "../interfaces"
 
 // init cloud database
 cloud.init({ env: 'release-b83caf' })
@@ -7,23 +7,14 @@ const db = cloud.database({ env: "release-b83caf" });
 const $ = db.command.aggregate
 
 export const fetchUserInfo = () => ({
-    queryKey: 'userInfo',
+    queryKey: 'user',
     queryFn: () => db.collection('user').get()
 })
 
-export const fetchQuestions = () => ([{
-    queryKey: 'qPersionality',
-    queryFn: () => db.collection('qPersonality').aggregate().sample({ size: 5 }).end(),
-}, {
-    queryKey: 'qRelationship',
-    queryFn: () => db.collection('qRelationship').aggregate().sample({ size: 5 }).end(),
-}, {
-    queryKey: 'qSociety',
-    queryFn: () => db.collection('qSociety').aggregate().sample({ size: 5 }).end(),
-}, {
-    queryKey: 'qHarmony',
-    queryFn: () => db.collection('qHarmony').aggregate().sample({ size: 5 }).end(),
-}])
+export const fetchDimensionQuestions = (dbName: DimensionType) => ({
+    queryKey: dbName,
+    queryFn: () => db.collection(dbName).aggregate().sample({ size: 1 }).end(),
+})
 
 export const postUserInfo = (data: UserInfo) => db.collection("user").add({ data: data })
 

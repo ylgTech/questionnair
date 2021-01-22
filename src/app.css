@@ -1,3 +1,8 @@
 page {
-  background: #282c34;
+  background: #ededed;
+}
+
+.anna-checkbox-container-label,
+.anna-radio-children {
+  white-space: normal !important;
 }

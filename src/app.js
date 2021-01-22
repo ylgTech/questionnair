@@ -1,10 +1,16 @@
 import React from 'react'
-import './app.css';
 import 'annar/dist/annar.css'
+import './app.css';
 
 // setup for react-query
 import { QueryClient, QueryClientProvider } from "react-query";
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: Infinity,
+        },
+    },
+});
 
 const App = ({ children }) => {
     return (

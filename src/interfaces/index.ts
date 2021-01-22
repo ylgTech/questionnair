@@ -5,13 +5,15 @@ export type UserInfo = {
     phone: string
 }
 
+export type DimensionType = "lore" | "action" | "emotion" | "goodwill"
+export type DimensionCNType = '知' | '行' | '情' | '意'
+
 export type QuestionType = {
-    id: string
+    _id: string
     question: string
     options: string[]
     correctAnswer: string[]
-    category: '知' | '行' | '情' | '意'
-    type: 'likert' | 'single' | 'multiple' | 'fill'
+    type: 'likert' | 'single' | 'accumulate'
 }
 
 export type Answer = {

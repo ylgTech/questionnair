@@ -1,152 +1,111 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { View } from "remax/wechat";
-import { useQueries } from "react-query";
-import { Button, Skeleton } from "annar";
-import QuestionOption from "./QuestionOption";
-import { fetchQuestions } from "../api";
+import { Button, Card, Checkbox, Form, Radio, Skeleton } from "annar";
+import { DIMENSION, dimensionMap } from "../data";
+import { useQuery } from "react-query";
+import { fetchDimensionQuestions } from "../api";
 import { QuestionType } from "../interfaces";
+import Para from "./Para";
+
+const handleFinish = (values) => {
+  console.log("answers: ", values);
+  // mutate(values);
+};
 
 const Question = () => {
-  const [curQuestionIndex, setCurQuestionIndex] = useState(0);
-
-  const answers = useRef([]);
-
-  // const { queryKey, queryFn } = fetchQuestions();
-  // const { data, isLoading, isSuccess, isError, error } = useQuery(
-  //   queryKey,
-  //   queryFn,
-  //   {
-  //     onSuccess: (res) => {
-  //       console.log("success");
-  //       console.log(res);
-  //     },
-  //     onError: (err: any) => {
-  //       console.log("error");
-  //       console.log(err.errMsg);
-  //     },
-  //     retry: 0,
-  //   }
-  // );
-
-  const res = useQueries(fetchQuestions());
-  console.log(res);
-
-  const isSuccess = res.every((item) => item.isSuccess);
-  const isLoading = res.some((item) => item.isLoading);
-
-  const data = res.map((item) => item.data?.list);
-  console.log(data);
+  const [curDimension, setDimension] = useState(0);
+  const totalDimensions = DIMENSION.length;
 
   const submit = () => {};
 
-  // const questions: QuestionType[] = isSuccess ? data.list : [];
-  const questions = data.flat();
-  const totalQuestions = questions.length;
+  const dimension = DIMENSION[curDimension];
+  const { data, isLoading, isSuccess } = useQuery(
+    fetchDimensionQuestions(dimension)
+  );
+  const questions: QuestionType[] = isSuccess ? data.list : [];
+  const desc = dimensionMap[dimension];
 
-  const questionOptions = isSuccess ? questions[curQuestionIndex].options : [];
-  const numQuestionOptions = questionOptions.length;
+  const isPosting = false;
 
   return (
     <>
-      <Progress percent={(curQuestionIndex * 100) / totalQuestions} />
-      <Skeleton
-        paragraph={{
-          rows: numQuestionOptions,
-          width: Array(numQuestionOptions)
-            .fill(0)
-            .map(() => `${40 + Math.floor(Math.random() * 60)}%`),
+      <Progress percent={(curDimension * 100) / totalDimensions} />
+      <View
+        style={{
+          height: "calc(100vh - 4px - 1em)",
+          display: "grid",
+          gap: "40px",
+          gridTemplateRows: "1fr auto",
         }}
-        fade
-        repetitions={3}
-        loading={isLoading}
       >
-        {isLoading ? null : (
-          <View
+        <View>
+          <Para content={desc.intro} />
+          <Para content={desc.remark} />
+          {isLoading ? (
+            <Skeleton
+              paragraph={{
+                rows: 5,
+                width: Array(5)
+                  .fill(0)
+                  .map(() => `${40 + Math.floor(Math.random() * 60)}%`),
+              }}
+              fade
+              repetitions={3}
+              //   loading={isLoading}
+            />
+          ) : null}
+          <Card contentStyle={{ padding: "20px 0 20px" }}>
+            <Form onFinish={handleFinish}>
+              {questions.map((question) => (
+                <View key={question._id} style={{ margin: "1em" }}>
+                  <View style={{ marginBottom: "0.5em" }}>
+                    {question.question}
+                  </View>
+                  <Form.Item
+                    name={question._id}
+                    rules={[{ required: true, message: "请选择" }]}
+                    noStyle
+                  >
+                    {question.type === "likert" || question.type === "single"
+                      ? geneOptions(Radio, question)
+                      : question.type === "accumulate"
+                      ? geneOptions(Checkbox, question)
+                      : null}
+                  </Form.Item>
+                </View>
+              ))}
+            </Form>
+          </Card>
+        </View>
+        <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+          <Button
+            type="primary"
+            look="secondary"
+            shape="square"
+            disabled={curDimension === 0}
+            onTap={() => setDimension(curDimension - 1)}
             style={{
-              height: "calc(100vh - 4px - 1em)",
-              display: "grid",
-              gap: "40px",
-              gridTemplateRows: "auto 1fr auto",
-              color: "white",
+              borderTopRightRadius: "0",
+              borderBottomRightRadius: "0",
             }}
           >
-            {isSuccess ? (
-              <View style={{ padding: "0 20px" }}>
-                {questions[curQuestionIndex].question}
-              </View>
-            ) : null}
-            <View
-              style={{
-                display: "grid",
-                gap: "1em",
-                alignContent: "start",
-                padding: "0 20px",
-              }}
-            >
-              {questionOptions.map((item, index) => (
-                <QuestionOption
-                  key={questions[curQuestionIndex].question + index}
-                  label={String.fromCharCode(65 + index)}
-                  content={item}
-                  onTap={() => {
-                    answers.current[curQuestionIndex] = index;
-                    setTimeout(() => {
-                      if (curQuestionIndex < totalQuestions - 1)
-                        setCurQuestionIndex((pre) => pre + 1);
-                    }, 300);
-                  }}
-                  selected={
-                    answers.current[curQuestionIndex] &&
-                    answers.current[curQuestionIndex] === index
-                  }
-                />
-              ))}
-            </View>
-            <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-              <Button
-                type="primary"
-                look="secondary"
-                shape="square"
-                disabled={curQuestionIndex === 0}
-                onTap={() => setCurQuestionIndex(curQuestionIndex - 1)}
-                style={{
-                  borderTopRightRadius: "0",
-                  borderBottomRightRadius: "0",
-                }}
-              >
-                上一题
-              </Button>
-              {curQuestionIndex === totalQuestions - 1 ? (
-                <Button
-                  type="primary"
-                  shape="square"
-                  onTap={submit}
-                  loading={isLoading}
-                  loadingText="提交中~"
-                  style={{
-                    borderTopLeftRadius: "0",
-                    borderBottomLeftRadius: "0",
-                  }}
-                >
-                  提交
-                </Button>
-              ) : (
-                <Button
-                  type="primary"
-                  shape="square"
-                  style={{
-                    borderTopLeftRadius: "0",
-                    borderBottomLeftRadius: "0",
-                  }}
-                  onTap={() => setCurQuestionIndex(curQuestionIndex + 1)}
-                >
-                  下一题
-                </Button>
-              )}
-            </View>
-          </View>
-        )}
-      </Skeleton>
+            上一题
+          </Button>
+          <Button
+            type="primary"
+            shape="square"
+            onTap={() => setDimension(curDimension + 1)}
+            loading={isPosting}
+            loadingText="提交中~"
+            style={{
+              borderTopLeftRadius: "0",
+              borderBottomLeftRadius: "0",
+            }}
+          >
+            {curDimension === totalDimensions - 1 ? "提交" : "下一题"}
+          </Button>
+        </View>
+      </View>
     </>
   );
 };
@@ -166,5 +125,24 @@ const Progress = React.memo(({ percent }: { percent: number }) => {
     ></View>
   );
 });
+
+const geneOptions = (
+  Comp: typeof Radio | typeof Checkbox,
+  question: QuestionType
+) => {
+  return (
+    <Comp.Group direction="column">
+      {question.options.map((option, index) => (
+        <Radio
+          key={question._id + index}
+          style={{ marginBottom: "0.5em" }}
+          value={index}
+        >
+          {option}
+        </Radio>
+      ))}
+    </Comp.Group>
+  );
+};
 
 export default Question;

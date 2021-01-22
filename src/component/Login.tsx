@@ -30,6 +30,36 @@ const Login = () => {
               border={false}
             />
           </Form.Item>
+          <Form.Item noStyle name="school" rules={[{ required: true }]}>
+            <Cell.Input
+              icon="discover"
+              label="学院"
+              // placeholder="Please enter"
+              border={false}
+            />
+          </Form.Item>
+          <Form.Item noStyle name="class" rules={[{ required: true }]}>
+            <Cell.Input
+              icon="group"
+              label="班级"
+              // placeholder="Please enter"
+              border={false}
+            />
+          </Form.Item>
+          <Form.Item
+            noStyle
+            name="phone"
+            rules={[
+              { pattern: /^1[3456789]\d{9}$/, message: "请输入11位手机号码" },
+            ]}
+          >
+            <Cell.Input
+              icon="phone"
+              label="联系电话"
+              // placeholder="Please enter"
+              border={false}
+            />
+          </Form.Item>
           <Form.Item noStyle style={{ marginTop: 10, padding: "0 20px" }}>
             <Button
               type="primary"
