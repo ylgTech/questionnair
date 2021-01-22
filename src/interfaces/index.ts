@@ -5,8 +5,8 @@ export type UserInfo = {
     phone: string
 }
 
-export type DimensionType = "lore" | "action" | "emotion" | "goodwill"
-export type DimensionCNType = '知' | '行' | '情' | '意'
+export type DimensionType = "lore" | "emotion" | "goodwill" | "action"
+export type DimensionCNType = '知' | '情' | '意' | '行'
 
 export type QuestionType = {
     _id: string

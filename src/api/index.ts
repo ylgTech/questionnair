@@ -13,7 +13,7 @@ export const fetchUserInfo = () => ({
 
 export const fetchDimensionQuestions = (dbName: DimensionType) => ({
     queryKey: dbName,
-    queryFn: () => db.collection(dbName).aggregate().sample({ size: 1 }).end(),
+    queryFn: () => db.collection(dbName).aggregate().sample({ size: 4 }).end(),
 })
 
 export const postUserInfo = (data: UserInfo) => db.collection("user").add({ data: data })

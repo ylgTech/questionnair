@@ -19,5 +19,6 @@ export default () => {
     }
   })
 
+  return <Question />
   return page === "login" ? <Login /> : page === "intro" ? <Intro onTap={() => setPage("question")} /> : <Question />
 };
