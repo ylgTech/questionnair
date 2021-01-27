@@ -6,3 +6,8 @@ page {
 .anna-radio-children {
   white-space: normal !important;
 }
+
+.anna-radio-container {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+}

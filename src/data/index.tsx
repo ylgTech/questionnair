@@ -1,9 +1,9 @@
 import { DimensionType, DimensionCNType } from "../interfaces/";
 
 export const DIMENSION: DimensionType[] = [
-  "lore",
-  "emotion",
-  "goodwill",
+  // "lore",
+  // "emotion",
+  // "goodwill",
   "action",
 ];
 export const dimensionCN: DimensionCNType[] = ["知", "情", "意", "行"];

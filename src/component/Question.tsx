@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
-import { View } from "remax/wechat";
-import { Button, Card, Checkbox, Form, Radio, Skeleton } from "annar";
+import { View, Image } from "remax/wechat";
+import { Button, Rate, Card, Checkbox, Form, Radio, Skeleton } from "annar";
 import { DIMENSION, dimensionMap } from "../data";
 import { useQuery } from "react-query";
 import { fetchDimensionQuestions } from "../api";
@@ -68,13 +68,17 @@ const Question = () => {
     }
   };
 
-  return score === 0 ? (
+  // return score === 0 ? (
+  return false ? (
     <View
       style={{
         height: "100vh",
         display: "grid",
         gridTemplateRows: "auto 1fr",
         gap: "0.5em",
+        background:
+          "url(https://7265-release-b83caf-1258232164.tcb.qcloud.la/bodyBG.png?sign=ade52739ab9ce2ac17a8924c50a0fd71&t=1611468092)",
+        backgroundSize: "100%",
       }}
     >
       <Progress percent={(curDimension * 100) / totalDimensions} />
@@ -162,7 +166,11 @@ const Question = () => {
       </View>
     </View>
   ) : (
-    <View>总得分：{score}</View>
+    <>
+      <View>总得分：{score}</View>
+      <Rate value={getStars(score)} />
+      <Image src="https://i.ibb.co/Prc76qb/part2.png" />
+    </>
   );
 };
 
@@ -190,7 +198,7 @@ const geneOptions = (
       {question.options.map((option, index) => (
         <Radio
           key={question._id + index}
-          style={{ marginBottom: "0.5em" }}
+          style={{ marginBottom: "0.2em", padding: ".3em 0" }}
           value={index}
         >
           {option}
@@ -198,6 +206,13 @@ const geneOptions = (
       ))}
     </Comp.Group>
   );
+};
+
+const getStars = (score: number) => {
+  if (score < 80) return 3;
+  if (score < 90) return 4;
+  if (score <= 100) return 5;
+  return 2; // unreachable
 };
 
 export default Question;
