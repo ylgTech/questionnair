@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { View, Image } from "remax/wechat";
 import { Button, Rate, Card, Checkbox, Form, Radio, Skeleton } from "annar";
 import { DIMENSION, dimensionMap } from "../data";
@@ -9,6 +9,7 @@ import Para from "./Para";
 
 const Question = () => {
   const [curDimension, setDimension] = useState(0);
+  console.log("render page with dimension: " + curDimension);
   const totalDimensions = DIMENSION.length;
 
   const dimension = DIMENSION[curDimension];
@@ -33,6 +34,7 @@ const Question = () => {
     );
     // console.log(correctAnswers.current);
     if (curDimension === totalDimensions - 1) {
+      console.log("all filled");
       // console.log("final answers: ", answers.current);
       let totalScore = 0;
       Object.keys(answers.current).forEach((d) => {
@@ -62,14 +64,16 @@ const Question = () => {
         totalScore += sectionScore;
       });
       console.log("t: " + totalScore);
-      setScore(totalScore);
+      setScore((pre) => totalScore);
     } else {
-      setDimension(curDimension + 1);
+      setDimension((pre) => pre + 1);
     }
   };
+  // [curDimension, dimension]
+  // );
 
-  // return score === 0 ? (
-  return false ? (
+  return score === 0 ? (
+    // return false ? (
     <View
       style={{
         height: "100vh",
@@ -104,7 +108,7 @@ const Question = () => {
             repetitions={3}
           />
         ) : (
-          <Form onFinish={handleFinish}>
+          <Form onFinish={handleFinish} key={"section" + curDimension}>
             <View
               style={{
                 display: "grid",
@@ -156,6 +160,7 @@ const Question = () => {
                     borderBottomLeftRadius: "0",
                   }}
                   nativeType="submit"
+                  // onTap={() => handleFinish(1, curDimension)}
                 >
                   {curDimension === totalDimensions - 1 ? "提交" : "下一题"}
                 </Button>
@@ -166,11 +171,20 @@ const Question = () => {
       </View>
     </View>
   ) : (
-    <>
+    <View
+      style={{
+        height: "100vh",
+        display: "grid",
+        gridTemplateRows: "auto auto",
+        gap: "1em",
+        alignContent: "center",
+        justifyItems: "center",
+      }}
+    >
       <View>总得分：{score}</View>
       <Rate value={getStars(score)} />
-      <Image src="https://i.ibb.co/Prc76qb/part2.png" />
-    </>
+      {/* <Image src="https://i.ibb.co/Prc76qb/part2.png" /> */}
+    </View>
   );
 };
 

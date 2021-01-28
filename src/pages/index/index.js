@@ -24,10 +24,10 @@ export default () => {
     }
   })
 
-  return <Question />
+  // return <Login />
   // return (<React.Suspense fallback={<View>Loading...</View>}>
   //   {
-  //     page === "login" ? <Login /> : page === "intro" ? <Intro onTap={() => setPage("question")} /> : <Question />
+  return page === "login" ? <Login /> : page === "intro" ? <Intro onTap={() => setPage("question")} /> : <Question />
   //   }
   // </React.Suspense>)
 };
