@@ -6,10 +6,10 @@ import { UserInfo } from "../interfaces";
 
 const Login = () => {
   const queryClient = useQueryClient();
-  const { queryKey: string } = fetchUserInfo();
+  const { queryKey: userInfo } = fetchUserInfo();
   const { mutate, isLoading } = useMutation(postUserInfo, {
     onSuccess: () => {
-      queryClient.invalidateQueries(string);
+      queryClient.invalidateQueries(userInfo);
     },
   });
 
