@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useCallback, useRef, useState } from "react";
 import { View, Image } from "remax/wechat";
 import { Button, Rate, Card, Checkbox, Form, Radio, Skeleton } from "annar";
