@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useState } from "react";
-import { View, Image } from "remax/wechat";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { View, pageScrollTo } from "remax/wechat";
 import { Button, Rate, Card, Checkbox, Form, Radio, Skeleton } from "annar";
 import { DIMENSION, dimensionMap } from "../data";
 import { useQuery } from "react-query";
@@ -24,35 +24,30 @@ const Question = () => {
   const answers = useRef({});
   const correctAnswers = useRef({});
 
+  useLayoutEffect(() => {
+    pageScrollTo({
+      scrollTop: 0,
+    });
+  });
+
   const [score, setScore] = useState(0);
 
   const handleFinish = (values) => {
-    // console.log("answers: ", values);
     answers.current[dimension] = values;
     correctAnswers.current[dimension] = Object.fromEntries(
       questions.map((q) => [q._id, { a: q.correctAnswer, t: q.type }])
     );
-    // console.log(correctAnswers.current);
     if (curDimension === totalDimensions - 1) {
       console.log("all filled");
-      // console.log("final answers: ", answers.current);
       let totalScore = 0;
       Object.keys(answers.current).forEach((d) => {
         let sectionScore = 0;
-        // console.log("cur section: " + d);
-        // console.log(answers.current[d]);
         Object.keys(answers.current[d]).forEach((k) => {
           const answer = answers.current[d][k];
           const correctAnswer = correctAnswers.current[d][k].a;
-          // console.log("answer: " + answer);
-          // console.log(answer);
-          // console.log("correctAnser: " + correctAnswer);
-          // console.log(correctAnswer);
           const type = correctAnswers.current[d][k].t;
-          // console.log(type);
           if (type === "single") {
             if (correctAnswer[0] === answer) {
-              // console.log("I am correct at single");
               sectionScore += 5;
             }
           } else if (type === "accumulate") {
@@ -69,8 +64,6 @@ const Question = () => {
       setDimension((pre) => pre + 1);
     }
   };
-  // [curDimension, dimension]
-  // );
 
   return score === 0 ? (
     // return false ? (
@@ -160,7 +153,6 @@ const Question = () => {
                     borderBottomLeftRadius: "0",
                   }}
                   nativeType="submit"
-                  // onTap={() => handleFinish(1, curDimension)}
                 >
                   {curDimension === totalDimensions - 1 ? "提交" : "下一题"}
                 </Button>

@@ -11,7 +11,3 @@ page {
   display: grid !important;
   grid-template-columns: auto 1fr;
 }
-
-/* .anna-cell-container-main-right-value {
-  border-bottom: solid 1rpx gray;
-} */

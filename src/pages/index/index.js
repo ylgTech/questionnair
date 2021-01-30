@@ -25,6 +25,7 @@ export default () => {
   })
 
   // return <Login />
+  // return <Intro onTap={() => setPage("question")} />
   // return (<React.Suspense fallback={<View>Loading...</View>}>
   //   {
   return page === "login" ? <Login /> : page === "intro" ? <Intro onTap={() => setPage("question")} /> : <Question />

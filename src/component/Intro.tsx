@@ -10,7 +10,15 @@ const Intro = ({ onTap }) => {
   const res = useQueries(DIMENSION.map((d) => fetchDimensionQuestions(d)));
 
   return (
-    <View style={{ margin: "1em" }}>
+    <View
+      style={{
+        padding: "1em",
+        background:
+          "url(https://7265-release-b83caf-1258232164.tcb.qcloud.la/bodyBG.png?sign=ade52739ab9ce2ac17a8924c50a0fd71&t=1611468092)",
+        backgroundPosition: "center",
+        backgroundSize: "100% 100%",
+      }}
+    >
       <View>
         <View>亲爱的同学：</View>
         <Para content="你好！" />
