@@ -1,3 +1,13 @@
 page {
-  background: #282c34;
+  background: #ededed;
+}
+
+.anna-checkbox-container-label,
+.anna-radio-children {
+  white-space: normal !important;
+}
+
+.anna-radio-container {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
 }

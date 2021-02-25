@@ -22,11 +22,53 @@ const Login = () => {
     <>
       <Card contentStyle={{ padding: "20px 0 20px" }}>
         <Form onFinish={handleFinish}>
-          <Form.Item noStyle name="name" rules={[{ required: true }]}>
+          <Form.Item
+            noStyle
+            name="name"
+            rules={[{ required: true, message: "请输入姓名" }]}
+          >
             <Cell.Input
+              placeholder="请输入姓名"
               icon="people"
               label="姓名"
-              // placeholder="Please enter"
+              border={false}
+            />
+          </Form.Item>
+          <Form.Item
+            noStyle
+            name="school"
+            rules={[{ required: true, message: "请输入学院" }]}
+          >
+            <Cell.Input
+              icon="discover"
+              label="学院"
+              placeholder="例：计算机学院"
+              border={false}
+            />
+          </Form.Item>
+          <Form.Item
+            noStyle
+            name="class"
+            rules={[{ required: true, message: "请输入班级" }]}
+          >
+            <Cell.Input
+              icon="group"
+              label="班级"
+              placeholder="例：计科1806"
+              border={false}
+            />
+          </Form.Item>
+          <Form.Item
+            noStyle
+            name="phone"
+            rules={[
+              { pattern: /^1[3456789]\d{9}$/, message: "请输入11位手机号码" },
+            ]}
+          >
+            <Cell.Input
+              icon="phone"
+              label="电话"
+              placeholder="请输入手机号码"
               border={false}
             />
           </Form.Item>

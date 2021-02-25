@@ -1,143 +1,170 @@
-import React, { useRef, useState } from "react";
-import { View } from "remax/wechat";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { View, pageScrollTo } from "remax/wechat";
+import { Button, Card, Checkbox, Form, Radio, Skeleton } from "annar";
+import { DIMENSION, dimensionMap } from "../data";
 import { useQuery } from "react-query";
-import { Button, Skeleton } from "annar";
-import QuestionOption from "./QuestionOption";
-import { fetchQuestions } from "../api";
+import { fetchDimensionQuestions } from "../api";
+import { QuestionType } from "../interfaces";
+import Para from "./Para";
+import Result from "./Result";
 
 const Question = () => {
-  const [curQuestionIndex, setCurQuestionIndex] = useState(0);
+  const [curDimension, setDimension] = useState(0);
+  console.log("render page with dimension: " + curDimension);
+  const totalDimensions = DIMENSION.length;
 
-  const answers = useRef([]);
-
-  const { queryKey, queryFn } = fetchQuestions();
-  const { data, isLoading, isSuccess, isError, error } = useQuery(
-    queryKey,
-    queryFn,
-    {
-      onSuccess: (res) => {
-        console.log("success");
-        console.log(res);
-      },
-      onError: (err: any) => {
-        console.log("error");
-        console.log(err.errMsg);
-      },
-      retry: 0,
-    }
+  const dimension = DIMENSION[curDimension];
+  const { data, isLoading, isSuccess } = useQuery(
+    fetchDimensionQuestions(dimension)
   );
+  const questions: QuestionType[] = isSuccess ? data.list : [];
+  const desc = dimensionMap[dimension];
 
-  const submit = () => {};
+  const isPosting = false;
 
-  const questions = isSuccess ? data.data.results : [];
-  const totalQuestions = questions.length;
+  const answers = useRef({});
+  const correctAnswers = useRef({});
 
-  const questionOptions = isSuccess
-    ? questions[curQuestionIndex].incorrect_answers
-    : [];
-  const numQuestionOptions = questionOptions.length;
-  const selectedOptionIndex = Math.floor(Math.random() * numQuestionOptions);
+  useLayoutEffect(() => {
+    pageScrollTo({
+      scrollTop: 0,
+    });
+  });
 
-  return (
-    <>
-      <Progress percent={(curQuestionIndex * 100) / totalQuestions} />
-      <Skeleton
-        paragraph={{
-          rows: numQuestionOptions,
-          width: Array(numQuestionOptions)
-            .fill(0)
-            .map(() => `${40 + Math.floor(Math.random() * 60)}%`),
+  const [score, setScore] = useState(0);
+
+  const handleFinish = (values) => {
+    answers.current[dimension] = values;
+    correctAnswers.current[dimension] = Object.fromEntries(
+      questions.map((q) => [q._id, { a: q.correctAnswer, t: q.type }])
+    );
+    if (curDimension === totalDimensions - 1) {
+      console.log("all filled");
+      let totalScore = 0;
+      Object.keys(answers.current).forEach((d) => {
+        let sectionScore = 0;
+        Object.keys(answers.current[d]).forEach((k) => {
+          const answer = answers.current[d][k];
+          const correctAnswer = correctAnswers.current[d][k].a;
+          const type = correctAnswers.current[d][k].t;
+          if (type === "single") {
+            if (correctAnswer[0] === answer) {
+              sectionScore += 5;
+            }
+          } else if (type === "accumulate") {
+            sectionScore += answer.length;
+          } else if (type === "likert") {
+            sectionScore += answer + 1;
+          }
+        });
+        totalScore += sectionScore;
+      });
+      console.log("t: " + totalScore);
+      setScore(totalScore);
+    } else {
+      setDimension((pre) => pre + 1);
+    }
+  };
+
+  return score === 0 ? (
+    // return false ? (
+    <View
+      style={{
+        height: "100vh",
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        gap: "0.5em",
+        background:
+          "url(https://7265-release-b83caf-1258232164.tcb.qcloud.la/bodyBG.png?sign=ade52739ab9ce2ac17a8924c50a0fd71&t=1611468092)",
+        backgroundSize: "100%",
+      }}
+    >
+      <Progress percent={(curDimension * 100) / totalDimensions} />
+      <View
+        style={{
+          display: "grid",
+          gridTemplateRows: "auto 1fr",
         }}
-        fade
-        repetitions={3}
-        loading={isLoading}
       >
-        <View
-          style={{
-            height: "calc(100vh - 4px - 1em)",
-            display: "grid",
-            gap: "40px",
-            gridTemplateRows: "auto 1fr auto",
-            color: "white",
-          }}
-        >
-          {isSuccess ? (
-            <View style={{ padding: "0 20px" }}>
-              {questions[curQuestionIndex].question}
-            </View>
-          ) : null}
-          <View
-            style={{
-              display: "grid",
-              gap: "1em",
-              alignContent: "start",
-              padding: "0 20px",
+        <View>
+          <Para content={desc.intro} />
+          <Para content={desc.remark} />
+        </View>
+        {isLoading ? (
+          <Skeleton
+            paragraph={{
+              rows: 5,
+              width: Array(5)
+                .fill(0)
+                .map(() => `${40 + Math.floor(Math.random() * 60)}%`),
             }}
-          >
-            {questionOptions.map((item, index) => (
-              <QuestionOption
-                key={item}
-                label={String.fromCharCode(65 + index)}
-                content={item}
-                onTap={() => {
-                  answers.current[curQuestionIndex] = index;
-                  setTimeout(() => {
-                    if (curQuestionIndex < totalQuestions - 1)
-                      setCurQuestionIndex((pre) => pre + 1);
-                  }, 300);
-                }}
-                selected={
-                  answers.current[curQuestionIndex] &&
-                  answers.current[curQuestionIndex] === index
-                }
-              />
-            ))}
-          </View>
-          <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-            <Button
-              type="primary"
-              look="secondary"
-              shape="square"
-              disabled={curQuestionIndex === 0}
-              onTap={() => setCurQuestionIndex(curQuestionIndex - 1)}
+            fade
+            repetitions={3}
+          />
+        ) : (
+          <Form onFinish={handleFinish} key={"section" + curDimension}>
+            <View
               style={{
-                borderTopRightRadius: "0",
-                borderBottomRightRadius: "0",
+                display: "grid",
+                gap: "40px",
+                gridTemplateRows: "1fr auto",
               }}
             >
-              上一题
-            </Button>
-            {curQuestionIndex === totalQuestions - 1 ? (
-              <Button
-                type="primary"
-                shape="square"
-                onTap={submit}
-                loading={isLoading}
-                loadingText="提交中~"
-                style={{
-                  borderTopLeftRadius: "0",
-                  borderBottomLeftRadius: "0",
-                }}
-              >
-                提交
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="square"
-                style={{
-                  borderTopLeftRadius: "0",
-                  borderBottomLeftRadius: "0",
-                }}
-                onTap={() => setCurQuestionIndex(curQuestionIndex + 1)}
-              >
-                下一题
-              </Button>
-            )}
-          </View>
-        </View>
-      </Skeleton>
-    </>
+              <Card contentStyle={{ padding: "20px 0 20px" }}>
+                {questions.map((question) => (
+                  <View key={question._id} style={{ margin: "1em" }}>
+                    <View style={{ marginBottom: "0.5em" }}>
+                      {question.question}
+                    </View>
+                    <Form.Item
+                      name={question._id}
+                      rules={[{ required: true, message: "请耐心作答呦~🎈" }]}
+                      noStyle
+                    >
+                      {question.type === "likert" || question.type === "single"
+                        ? geneOptions(Radio, question)
+                        : question.type === "accumulate"
+                        ? geneOptions(Checkbox, question)
+                        : null}
+                    </Form.Item>
+                  </View>
+                ))}
+              </Card>
+              <View style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                <Button
+                  type="primary"
+                  look="secondary"
+                  shape="square"
+                  disabled={curDimension === 0}
+                  onTap={() => setDimension(curDimension - 1)}
+                  style={{
+                    borderTopRightRadius: "0",
+                    borderBottomRightRadius: "0",
+                  }}
+                >
+                  上一题
+                </Button>
+                <Button
+                  type="primary"
+                  shape="square"
+                  loading={isPosting}
+                  loadingText="提交中~"
+                  style={{
+                    borderTopLeftRadius: "0",
+                    borderBottomLeftRadius: "0",
+                  }}
+                  nativeType="submit"
+                >
+                  {curDimension === totalDimensions - 1 ? "提交" : "下一题"}
+                </Button>
+              </View>
+            </View>
+          </Form>
+        )}
+      </View>
+    </View>
+  ) : (
+    <Result score={score} />
   );
 };
 
@@ -147,7 +174,6 @@ const Progress = React.memo(({ percent }: { percent: number }) => {
       style={{
         height: "4px",
         width: `${percent}%`,
-        marginBottom: "1em",
         position: "relative",
         borderRadius: "200rpx",
         backgroundColor: "#1890ff",
@@ -156,5 +182,24 @@ const Progress = React.memo(({ percent }: { percent: number }) => {
     ></View>
   );
 });
+
+const geneOptions = (
+  Comp: typeof Radio | typeof Checkbox,
+  question: QuestionType
+) => {
+  return (
+    <Comp.Group direction="column">
+      {question.options.map((option, index) => (
+        <Comp
+          key={question._id + index}
+          style={{ marginBottom: "0.2em", padding: ".3em 0" }}
+          value={index}
+        >
+          {option}
+        </Comp>
+      ))}
+    </Comp.Group>
+  );
+};
 
 export default Question;
