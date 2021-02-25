@@ -1,11 +1,12 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { View, pageScrollTo } from "remax/wechat";
-import { Button, Rate, Card, Checkbox, Form, Radio, Skeleton } from "annar";
+import { Button, Card, Rate, Checkbox, Form, Radio, Skeleton } from "annar";
 import { DIMENSION, dimensionMap } from "../data";
 import { useQuery } from "react-query";
 import { fetchDimensionQuestions } from "../api";
 import { QuestionType } from "../interfaces";
 import Para from "./Para";
+import Result from "./Result";
 
 const Question = () => {
   const [curDimension, setDimension] = useState(0);
@@ -59,7 +60,7 @@ const Question = () => {
         totalScore += sectionScore;
       });
       console.log("t: " + totalScore);
-      setScore((pre) => totalScore);
+      setScore(totalScore);
     } else {
       setDimension((pre) => pre + 1);
     }
@@ -163,20 +164,7 @@ const Question = () => {
       </View>
     </View>
   ) : (
-    <View
-      style={{
-        height: "100vh",
-        display: "grid",
-        gridTemplateRows: "auto auto",
-        gap: "1em",
-        alignContent: "center",
-        justifyItems: "center",
-      }}
-    >
-      <View>总得分：{score}</View>
-      <Rate value={getStars(score)} />
-      {/* <Image src="https://i.ibb.co/Prc76qb/part2.png" /> */}
-    </View>
+    <Result score={score} />
   );
 };
 
@@ -202,23 +190,16 @@ const geneOptions = (
   return (
     <Comp.Group direction="column">
       {question.options.map((option, index) => (
-        <Radio
+        <Comp
           key={question._id + index}
           style={{ marginBottom: "0.2em", padding: ".3em 0" }}
           value={index}
         >
           {option}
-        </Radio>
+        </Comp>
       ))}
     </Comp.Group>
   );
-};
-
-const getStars = (score: number) => {
-  if (score < 80) return 3;
-  if (score < 90) return 4;
-  if (score <= 100) return 5;
-  return 2; // unreachable
 };
 
 export default Question;
