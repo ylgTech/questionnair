@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { View, pageScrollTo } from "remax/wechat";
-import { Button, Card, Rate, Checkbox, Form, Radio, Skeleton } from "annar";
+import { Button, Card, Checkbox, Form, Radio, Skeleton } from "annar";
 import { DIMENSION, dimensionMap } from "../data";
 import { useQuery } from "react-query";
 import { fetchDimensionQuestions } from "../api";
