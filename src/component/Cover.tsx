@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { Tag } from 'annar';
 
-const Cover = ({ second }) =>{
+const Cover = ({ second,jump }) =>{
 
     return (
         <view
@@ -20,6 +20,7 @@ const Cover = ({ second }) =>{
             />
             <Tag
                 size="large"
+                // onTap={() => jump()}
             >
                 { second } s
             </Tag>

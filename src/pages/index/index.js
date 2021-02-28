@@ -9,7 +9,6 @@ import { fetchUserInfo } from '../../api'
 export default () => {
   const [page, setPage] = useState("cover")
   const [second,setSecond] = useState(3)
-  const { queryKey, queryFn } = fetchUserInfo()
 
   useEffect(() => {
     const handleInterval = setInterval(() => {
@@ -22,19 +21,10 @@ export default () => {
     }
   },[second]);
 
-  useQuery(queryKey, queryFn, {
-    onSuccess: (res) => {
-      console.log(res.data)
-      if (res.data.length > 0 & second === 0) {
-        setPage("intro")
-        console.log("setIntro了")
-      }
-    }
-  })
 
   // return <Cover second={second} jump={setPage("login")}/>
-  return  page === "cover" ? <Cover second={second} /> :
-          page === "login" ? <Login /> :
+  return  page === "cover" ? <Cover second={ second } /> :
+          page === "login" ? <Login jump={() => setPage("intro")} /> :
           page === "intro" ? <Intro onTap={() => setPage("question")} /> :
           <Question />
 };

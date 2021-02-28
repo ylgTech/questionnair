@@ -4,8 +4,9 @@ import {useMutation, useQuery, useQueryClient} from "react-query";
 import { fetchUserInfo, postUserInfo } from "../api";
 import { UserInfo } from "../interfaces";
 
-const Login = () => {
+const Login = ({jump}) => {
   const queryClient = useQueryClient();
+  const { queryKey, queryFn } = fetchUserInfo()
   const { queryKey: userInfo } = fetchUserInfo();
   const { mutate, isLoading } = useMutation(postUserInfo, {
     onSuccess: () => {
@@ -17,6 +18,16 @@ const Login = () => {
     console.log("post user info: ", values);
     mutate(values);
   };
+
+  useQuery(queryKey, queryFn, {
+    onSuccess: (res) => {
+      console.log(res.data)
+      if (res.data.length > 0) {
+        jump();
+        console.log("setIntro了")
+      }
+    }
+  })
 
   return (
     <>
