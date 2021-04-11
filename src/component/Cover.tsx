@@ -1,7 +1,22 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Tag } from 'annar';
+import { usePageEvent } from 'remax/macro';
 
-const Cover = ({ second,jump }) =>{
+const Cover = ({ jump }) =>{
+    const [second,setSecond] = useState(3);
+
+    useEffect(() => {
+        if(second <= 0) {
+            console.log('Cover jump...');
+            jump();
+            return;
+        }
+        const Time = setTimeout(() => {
+            setSecond(second => second - 1);
+            console.log('second--'+second);
+        },1000);
+        return () => clearInterval(Time);
+    }, [second]);
 
     return (
         <view
@@ -27,6 +42,7 @@ const Cover = ({ second,jump }) =>{
         </view>
     );
 };
+
 
 
 export default Cover;
